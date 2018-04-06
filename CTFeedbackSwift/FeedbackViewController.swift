@@ -10,7 +10,7 @@ import UIKit
 import Dispatch
 import MessageUI
 
-public class FeedbackViewController: UITableViewController {
+open class FeedbackViewController: UITableViewController {
     public var replacedFeedbackSendingAction: ((Feedback) -> ())?
     public var feedbackDidFailed:             ((MFMailComposeResult, NSError) -> ())?
     public var configuration:                 FeedbackConfiguration {
@@ -29,7 +29,7 @@ public class FeedbackViewController: UITableViewController {
                                  AnyCellFactory(AppVersionCell.self),
                                  AnyCellFactory(AppBuildCell.self)]
 
-    private lazy var feedbackEditingService: FeedbackEditingServiceProtocol = {
+    open lazy var feedbackEditingService: FeedbackEditingServiceProtocol = {
         return FeedbackEditingService(editingItemsRepository: configuration.dataSource,
                                       feedbackEditingEventHandler: self)
     }()
@@ -53,7 +53,7 @@ public class FeedbackViewController: UITableViewController {
 
     public required init?(coder aDecoder: NSCoder) { fatalError() }
 
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.rowHeight = UITableViewAutomaticDimension
@@ -71,7 +71,7 @@ public class FeedbackViewController: UITableViewController {
                                                   action: #selector(mailButtonTapped(_:)))
     }
 
-    public override func viewWillAppear(_ animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         popNavigationBarHiddenState = push(navigationController?.isNavigationBarHidden)
@@ -80,13 +80,13 @@ public class FeedbackViewController: UITableViewController {
         configureLeftBarButtonItem()
     }
 
-    public override func viewWillDisappear(_ animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
         popNavigationBarHiddenState?({ self.navigationController?.isNavigationBarHidden = $0 })
     }
 
-    public override func didReceiveMemoryWarning() {
+    open override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
@@ -95,16 +95,16 @@ public class FeedbackViewController: UITableViewController {
 extension FeedbackViewController {
     // MARK: - UITableViewDataSource
 
-    override public func numberOfSections(in tableView: UITableView) -> Int {
+    override open func numberOfSections(in tableView: UITableView) -> Int {
         return configuration.dataSource.numberOfSections
     }
 
-    override public func tableView(_ tableView: UITableView,
+    override open func tableView(_ tableView: UITableView,
                                    numberOfRowsInSection section: Int) -> Int {
         return configuration.dataSource.section(at: section).count
     }
 
-    override public func tableView(_ tableView: UITableView,
+    override open func tableView(_ tableView: UITableView,
                                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = configuration.dataSource.section(at: indexPath.section)[indexPath.row]
         return tableView.dequeueCell(to: item,
@@ -113,7 +113,7 @@ extension FeedbackViewController {
                                      eventHandler: self)
     }
 
-    override public func tableView(_ tableView: UITableView,
+    override open func tableView(_ tableView: UITableView,
                                    titleForHeaderInSection section: Int) -> String? {
         return configuration.dataSource.section(at: section).title
     }
@@ -122,13 +122,18 @@ extension FeedbackViewController {
 extension FeedbackViewController {
     // MARK: - UITableViewDelegate
 
-    public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    open override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = configuration.dataSource.section(at: indexPath.section)[indexPath.row]
         switch item {
         case _ as TopicItem:
             wireframe.showTopicsView(with: feedbackEditingService)
         case _ as AttachmentItem:
-            wireframe.showAttachmentActionSheet(deleteAction: attachmentDeleteAction)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                wireframe.showAttachmentActionSheet(sourceView:tableView ,sourceRect:tableView.rectForRow(at: indexPath), deleteAction: attachmentDeleteAction)
+            }else {
+                wireframe.showAttachmentActionSheet(sourceView:tableView ,sourceRect:CGRect(x: 100, y: 100, width: 1.0, height: 1.0), deleteAction: attachmentDeleteAction)
+            }
+            
         default: ()
         }
         tableView.deselectRow(at: indexPath, animated: true)
@@ -197,11 +202,22 @@ extension FeedbackViewController {
     }
 
     @objc func mailButtonTapped(_ sender: Any) {
+        let feedbackclass = self.feedback
         do {
             let feedback = try feedbackEditingService.generateFeedback(configuration: configuration)
             (replacedFeedbackSendingAction ?? wireframe.showMailComposer(with:))(feedback)
         } catch {
             wireframe.showFeedbackGenerationError()
+        }
+        
+    }
+    
+    open var feedback:FeedbackClass? {
+        do {
+            let feedback = try feedbackEditingService.generateFeedback(configuration: configuration)
+            return FeedbackClass(from:feedback)
+        } catch {
+            return nil
         }
     }
 

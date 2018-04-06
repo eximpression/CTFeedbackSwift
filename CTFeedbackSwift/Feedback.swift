@@ -16,3 +16,20 @@ public struct Feedback {
     public let jpeg:    Data?
     public let mp4:     Data?
 }
+
+open class FeedbackClass: NSObject {
+    open let subject: String
+    open let body:    String
+    open let isHTML:  Bool
+    open let jpeg:    Data?
+    open let mp4:     Data?
+    
+    init(from feedback: Feedback) {
+        subject = feedback.subject
+        body = feedback.body
+        isHTML = feedback.isHTML
+        jpeg = feedback.jpeg
+        mp4 = feedback.mp4
+        super.init()
+    }
+}

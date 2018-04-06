@@ -10,7 +10,7 @@ import MessageUI
 protocol FeedbackWireframeProtocol {
     func showTopicsView(with service: FeedbackEditingServiceProtocol)
     func showMailComposer(with feedback: Feedback)
-    func showAttachmentActionSheet(deleteAction: (() -> ())?)
+    func showAttachmentActionSheet(sourceView:UIView,sourceRect:CGRect, deleteAction: (() -> ())?)
     func showFeedbackGenerationError()
     func showUnknownErrorAlert()
     func showMailComposingError(_ error: NSError)
@@ -61,7 +61,7 @@ extension FeedbackWireframe: FeedbackWireframeProtocol {
         viewController?.present(controller, animated: true)
     }
 
-    func showAttachmentActionSheet(deleteAction: (() -> ())?) {
+    func showAttachmentActionSheet(sourceView: UIView,sourceRect:CGRect, deleteAction: (() -> ())?) {
         let alertController = UIAlertController(title: .none,
                                                 message: .none,
                                                 preferredStyle: .actionSheet)
@@ -84,6 +84,10 @@ extension FeedbackWireframe: FeedbackWireframeProtocol {
 
         alertController.addAction(UIAlertAction(title: CTLocalizedString("CTFeedback.Cancel"),
                                                 style: .cancel))
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = sourceView
+            popoverController.sourceRect = sourceRect
+        }
         viewController?.present(alertController, animated: true)
     }
 
