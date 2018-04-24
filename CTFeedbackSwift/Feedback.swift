@@ -23,6 +23,7 @@ open class FeedbackClass: NSObject {
     open let isHTML:  Bool
     open let jpeg:    Data?
     open let mp4:     Data?
+    open let email: String?
     
     init(from feedback: Feedback) {
         subject = feedback.subject
@@ -30,6 +31,7 @@ open class FeedbackClass: NSObject {
         isHTML = feedback.isHTML
         jpeg = feedback.jpeg
         mp4 = feedback.mp4
+        email = feedback.email
         super.init()
     }
 }
