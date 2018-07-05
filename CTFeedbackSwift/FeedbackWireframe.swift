@@ -84,10 +84,17 @@ extension FeedbackWireframe: FeedbackWireframeProtocol {
 
         alertController.addAction(UIAlertAction(title: CTLocalizedString("CTFeedback.Cancel"),
                                                 style: .cancel))
+        //fix ipad crash
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = sourceView
             popoverController.sourceRect = sourceRect
         }
+        //
+        let screenSize = UIScreen.main.bounds
+        alertController.popoverPresentationController?.sourceView = viewController?.view
+        alertController.popoverPresentationController?.sourceRect = CGRect(x: screenSize.size.width/2, y: screenSize.size.height/2, width: 0, height: 0)
+        alertController.popoverPresentationController?.permittedArrowDirections = .init(rawValue: 0)
+
         viewController?.present(alertController, animated: true)
     }
 
