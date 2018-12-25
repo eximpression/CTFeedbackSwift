@@ -56,7 +56,7 @@ open class FeedbackViewController: UITableViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 44.0
         tableView.keyboardDismissMode = .onDrag
 
@@ -236,7 +236,7 @@ extension FeedbackViewController {
 
 extension FeedbackViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     public func imagePickerController(_ picker: UIImagePickerController,
-                                      didFinishPickingMediaWithInfo info: [String : Any]) {
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         switch getMediaFromImagePickerInfo(info) {
         case let media?:
             feedbackEditingService.update(attachmentMedia: media)

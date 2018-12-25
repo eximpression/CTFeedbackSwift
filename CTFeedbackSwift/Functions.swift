@@ -19,17 +19,17 @@ func CTLocalizedString(_ key: String) -> String {
     return key
 }
 
-func getMediaFromImagePickerInfo(_ info: [String : Any]) -> Media? {
+func getMediaFromImagePickerInfo(_ info: [UIImagePickerController.InfoKey : Any]) -> Media? {
     let imageType = kUTTypeImage as String
     let movieType = kUTTypeMovie as String
 
-    switch info[UIImagePickerControllerMediaType] as? String {
+    switch info[.mediaType] as? String {
     case imageType?:
-        guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage
+        guard let image = info[.originalImage] as? UIImage
             else { return .none }
         return .image(image)
     case movieType?:
-        guard let url = info[UIImagePickerControllerMediaURL] as? URL else { return .none }
+        guard let url = info[.mediaURL] as? URL else { return .none }
         return getMediaFromURL(url)
     default:
         return .none
@@ -40,7 +40,7 @@ func getMediaFromURL(_ url: URL) -> Media? {
     let asset     = AVURLAsset(url: url)
     let generator = AVAssetImageGenerator(asset: asset)
     generator.appliesPreferredTrackTransform = true
-    let time = CMTimeMake(1, 1)
+    let time = CMTimeMake(value: 1, timescale: 1)
     guard let cgImage = try? generator.copyCGImage(at: time, actualTime: .none)
         else { return .none }
     return .video(UIImage(cgImage: cgImage), url)
